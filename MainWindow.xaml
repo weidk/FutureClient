@@ -20,6 +20,8 @@
         <converter:FutureNameConverter  x:Key="fnConverter"/>
         <converter:DirectionConverter  x:Key="directionConverter"/>
         <converter:ValueConverter  x:Key="valueConverter"/>
+        <converter:ColorConverter  x:Key="colorConverter"/>
+        <converter:DictionColorConverter  x:Key="DictionColorConverter"/>
 
         <CollectionViewSource x:Key="AccountView" Source="{Binding AccountIpList}"   Filter="CollectionViewSource_FilterAccount" />
         <CollectionViewSource x:Key="FinishedView" Source="{Binding ExpiredlatestIpList}"   Filter="CollectionViewSource_FilterFinish" />
@@ -447,7 +449,7 @@
 
                         </GroupBox>
                         <Border BorderThickness="1" BorderBrush="Gray" Margin="0,0,0,5" Grid.Row="2" >
-                            <DataGrid ItemsSource="{Binding HqList}" AutoGenerateColumns="False" CanUserAddRows="False" SelectionUnit="Cell" SelectionMode="Extended"  IsReadOnly="True" FontSize="18" MouseDoubleClick="DataGrid_MouseDoubleClick" >
+                            <DataGrid Margin="0"  ItemsSource="{Binding HqList}" AutoGenerateColumns="False" CanUserAddRows="False" SelectionUnit="Cell" SelectionMode="Extended"  IsReadOnly="True" FontSize="18" MouseDoubleClick="DataGrid_MouseDoubleClick" >
 
                                 <DataGrid.Columns>
                                     <!--<DataGridTemplateColumn>
@@ -458,11 +460,11 @@
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>-->
                                     <DataGridTextColumn Binding="{Binding SCode,Converter={StaticResource fnConverter}}" Header="代码" Width="6*"/>
-                                    <DataGridTextColumn Binding="{Binding BuyVol1 ,Converter={StaticResource valueConverter}}" Header="手" Foreground="Red"  Width="3*"/>
+                                    <DataGridTextColumn Binding="{Binding BuyVol1 ,Converter={StaticResource valueConverter}}" Header="手" Foreground="Red"  Width="3*" FontSize="12"/>
                                     <DataGridTextColumn Binding="{Binding BuyPrice1,Converter={StaticResource valueConverter}}" Header="买一" Foreground="Red"  Width="6*"/>
 
                                     <DataGridTextColumn Binding="{Binding SelPrice1,Converter={StaticResource valueConverter}}" Header="卖一" Foreground="Green"  Width="6*"/>
-                                    <DataGridTextColumn Binding="{Binding SelVol1,Converter={StaticResource valueConverter}}" Header="手" Foreground="Green" Width="3*"/>
+                                    <DataGridTextColumn Binding="{Binding SelVol1,Converter={StaticResource valueConverter}}" Header="手" Foreground="Green" Width="3*" FontSize="12"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
@@ -488,7 +490,7 @@
                                         <TextBox.Text>
                                             <Binding  Path="LongRatio"  UpdateSourceTrigger="PropertyChanged">
                                                 <Binding.ValidationRules>
-                                                    <validationrules:NumberValidation ValidType="LongRatio" Ticks="1" Min="1" Max="10"  />
+                                                    <validationrules:NumberValidation ValidType="LongRatio" Ticks="1" Min="1" Max="20"  />
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
@@ -497,7 +499,7 @@
                                         <TextBox.Text>
                                             <Binding  Path="LongMultiplier"  UpdateSourceTrigger="PropertyChanged">
                                                 <Binding.ValidationRules>
-                                                    <validationrules:NumberValidation ValidType="LongMultiplier" Ticks="1" Min="1" Max="10"  />
+                                                    <validationrules:NumberValidation ValidType="LongMultiplier" Ticks="1" Min="1" Max="20"  />
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
@@ -527,7 +529,7 @@
                                         <TextBox.Text>
                                             <Binding  Path="ShortRatio"  UpdateSourceTrigger="PropertyChanged">
                                                 <Binding.ValidationRules>
-                                                    <validationrules:NumberValidation ValidType="ShortRatio" Ticks="1" Min="1" Max="10"  />
+                                                    <validationrules:NumberValidation ValidType="ShortRatio" Ticks="1" Min="1" Max="20"  />
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
@@ -536,7 +538,7 @@
                                         <TextBox.Text>
                                             <Binding  Path="ShortMultiplier"  UpdateSourceTrigger="PropertyChanged">
                                                 <Binding.ValidationRules>
-                                                    <validationrules:NumberValidation ValidType="ShortMultiplier" Ticks="1" Min="1" Max="10"  />
+                                                    <validationrules:NumberValidation ValidType="ShortMultiplier" Ticks="1" Min="1" Max="20"  />
                                                 </Binding.ValidationRules>
                                             </Binding>
                                         </TextBox.Text>
@@ -831,7 +833,16 @@
                                     ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"
                                     EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}" />
                                     <DataGridTextColumn Binding="{Binding code}" Header="代码" IsReadOnly="True"/>
-                                    <DataGridTextColumn  Header="方向"  IsReadOnly="True" Binding="{Binding entrust_direction}"/>
+                                    <!--<DataGridTextColumn  Header="方向"  IsReadOnly="True" Binding="{Binding entrust_direction}"/>-->
+                                    <DataGridTemplateColumn Header="方向">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                                    <TextBlock  Text="{Binding entrust_direction}" Foreground="{Binding Path=entrust_direction ,Converter={StaticResource DictionColorConverter}}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                     <DataGridTextColumn Binding="{Binding futures_direction}" Header="开平"  IsReadOnly="True"/>
                                     <DataGridTextColumn Binding="{Binding entrust_price}" Header="委托价格"  IsReadOnly="True"/>
                                     <DataGridTextColumn Binding="{Binding entrust_amount}" Header="委托数量"  IsReadOnly="True"/>
@@ -866,14 +877,24 @@
                                      TextAlignment="Center"
                                      FontSize="16"
                                      VerticalAlignment="Center" Margin="10,0,10,0" TextChanged="FinishedFilter_Changed" />
+                                    <Button  Margin="10,0,10,0" Click="Export_Click" > 導出excel</Button>
                                 </StackPanel>
                             </Border>
                         </DockPanel>
                         <Border BorderThickness="1" BorderBrush="Gray">
-                            <DataGrid x:Name="FinishedDataGrid" ItemsSource="{Binding Source={StaticResource FinishedView}}" CanUserAddRows="False"  AutoGenerateColumns="False" SelectionUnit="Cell" SelectionMode="Extended">
+                            <DataGrid x:Name="FinishedDataGrid" ItemsSource="{Binding Source={StaticResource FinishedView}}" CanUserAddRows="False"  AutoGenerateColumns="False" SelectionUnit="Cell" SelectionMode="Extended" VirtualizingPanel.IsVirtualizing="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Binding="{Binding code}" Header="代码" IsReadOnly="True"/>
-                                    <DataGridTextColumn Binding="{Binding entrust_direction}" Header="方向"  IsReadOnly="True" />
+                                    <!--<DataGridTextColumn Binding="{Binding entrust_direction}" Header="方向"  IsReadOnly="True" />-->
+                                    <DataGridTemplateColumn Header="方向">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                                    <TextBlock  Text="{Binding entrust_direction}" Foreground="{Binding Path=entrust_direction ,Converter={StaticResource DictionColorConverter}}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                     <DataGridTextColumn Binding="{Binding futures_direction}" Header="开平"  IsReadOnly="True"/>
                                     <DataGridTextColumn Binding="{Binding entrust_price}" Header="委托价格"  IsReadOnly="True"/>
                                     <DataGridTextColumn Binding="{Binding entrust_amount}" Header="委托数量"  IsReadOnly="True"/>
@@ -1029,18 +1050,19 @@
             <!--持仓、成本汇总行-->
             <Grid  Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="6*"/>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="5*"/>
                     <ColumnDefinition Width="12*"/>
                 </Grid.ColumnDefinitions>
                 <DockPanel>
                     <DockPanel DockPanel.Dock="Top">
-                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,20,0">持倉</TextBlock>
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,20,0">總持倉</TextBlock>
                         <Border BorderThickness="1" BorderBrush="Gray">
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal">
-                                <CheckBox x:Name="amountCheck" VerticalAlignment="Center"  Content="显示0持仓"  Checked="Filter_Changed" Unchecked="Filter_Changed" IsChecked="False" Margin="2,0,2,0"/>
-                                <CheckBox x:Name="longCheck" VerticalAlignment="Center"  Content="多头"  Checked="Filter_Changed" Unchecked="Filter_Changed" IsChecked="True" Margin="2,0,2,0"/>
-                                <CheckBox x:Name="shortCheck" VerticalAlignment="Center"  Content="空头"  Checked="Filter_Changed" Unchecked="Filter_Changed" IsChecked="True" Margin="2,0,2,0"/>
+                                <CheckBox x:Name="amountCheck" VerticalAlignment="Center"  Content="0持仓"  Checked="Filter_Changed" Unchecked="Filter_Changed" IsChecked="False" Margin="2,0,10,0"/>
+                                <!--<CheckBox x:Name="longCheck" VerticalAlignment="Center"  Content="多头"  Checked="Filter_Changed" Unchecked="Filter_Changed" IsChecked="True" Margin="2,0,2,0"/>-->
+                                <!--<CheckBox x:Name="shortCheck" VerticalAlignment="Center"  Content="空头"  Checked="Filter_Changed" Unchecked="Filter_Changed" IsChecked="True" Margin="2,0,2,0"/>-->
                                 <TextBox x:Name="bondName" 
                                      CharacterCasing="Upper"
                                      materialDesign:TextFieldAssist.TextBoxViewMargin="1 0 1 0"
@@ -1057,9 +1079,30 @@
                         <DataGrid x:Name="AccountDataGrid" ItemsSource="{Binding Source={StaticResource AccountView}}" AutoGenerateColumns="False" CanUserAddRows="False" SelectionUnit="Cell" SelectionMode="Extended"  IsReadOnly="True" MouseDoubleClick="AccountDataGrid_MouseDoubleClick">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding out_stock_code}" Header="代码" />
-                                <DataGridTextColumn Binding="{Binding out_position_flag, Converter={StaticResource directionConverter}}" Header="方向" />
-                                <DataGridTextColumn Binding="{Binding out_enable_amount}" Header="可用持仓" />
-                                <DataGridTextColumn Binding="{Binding out_current_amount}" Header="总持仓" />
+                                <!--<DataGridTextColumn Binding="{Binding out_position_flag, Converter={StaticResource directionConverter}}" Header="方向"  Foreground="{Binding out_position_flag ,Converter={StaticResource colorConverter}}"/>-->
+                                <DataGridTemplateColumn Header="方向">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                                <TextBlock  Text="{Binding out_position_flag, Converter={StaticResource directionConverter}}" Foreground="{Binding Path=out_position_flag ,Converter={StaticResource DictionColorConverter}}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="持仓(可用/总共)">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                                <TextBlock   Text="{Binding out_enable_amount}"/>
+                                                <TextBlock   Text=" / "/>
+                                                <TextBlock  Text="{Binding out_current_amount}"/>
+                                                <!--<TextBlock   Text=" / "/>-->
+                                                <!--<TextBlock  Text="{Binding out_sell_fee}" Foreground="{Binding Path=out_sell_fee ,Converter={StaticResource colorConverter}}"/>-->
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <!--<DataGridTextColumn Binding="{Binding out_current_cost_price}" Header="總成本" />-->
 
                                 <!--<DataGridTextColumn Binding="{Binding total_balance}" Header="总市值" />-->
                                 <!--<DataGridTextColumn Binding="{Binding out_current_cost_price}" Header="成本" />-->
@@ -1071,20 +1114,51 @@
 
                 <DockPanel Grid.Column="1"  Margin="5,0,0,0">
                     <DockPanel DockPanel.Dock="Top">
+                        <TextBlock DockPanel.Dock="Left" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,20,0">當日匯總</TextBlock>
+                    </DockPanel>
+                    <Border BorderThickness="1" BorderBrush="Gray" Margin="0,0,0,5">
+                        <DataGrid ItemsSource="{Binding PosSumCollection}" AutoGenerateColumns="False" CanUserAddRows="False" SelectionUnit="Cell" SelectionMode="Extended"  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding code}" Header="代码" />
+                                <DataGridTemplateColumn Header="净买">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                                <TextBlock  Text="{Binding netPosition}" Foreground="{Binding Path=netPosition ,Converter={StaticResource colorConverter}}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </DockPanel>
+                <DockPanel Grid.Column="2"  Margin="5,0,0,0">
+                    <DockPanel DockPanel.Dock="Top">
                         <TextBlock DockPanel.Dock="Left" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,20,0">當日方向成本匯總</TextBlock>
                     </DockPanel>
                     <Border BorderThickness="1" BorderBrush="Gray" Margin="0,0,0,5">
                         <DataGrid ItemsSource="{Binding DirectionSummaryCollection}" AutoGenerateColumns="False" CanUserAddRows="False" SelectionUnit="Cell" SelectionMode="Extended"  IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding code}" Header="代码" />
-                                <DataGridTextColumn Binding="{Binding direction}" Header="方向" />
+                                <!--<DataGridTextColumn Binding="{Binding direction}" Header="方向" />-->
+                                <DataGridTemplateColumn Header="方向">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                                <TextBlock  Text="{Binding direction}" Foreground="{Binding Path=direction ,Converter={StaticResource DictionColorConverter}}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Binding="{Binding avgcostt}" Header="平均成本" />
                                 <DataGridTextColumn Binding="{Binding position}" Header="持仓" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </Border>
                 </DockPanel>
-                <DockPanel Grid.Column="2"  Margin="5,0,0,0">
+                
+                <DockPanel Grid.Column="3"  Margin="5,0,0,0">
                     <DockPanel DockPanel.Dock="Top" LastChildFill="False">
                         <TextBlock DockPanel.Dock="Left" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,20,0">當日配對成本匯總</TextBlock>
                         <TextBlock Margin="0,5,20,0" DockPanel.Dock="Right">

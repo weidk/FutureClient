@@ -4,6 +4,7 @@ using FutureMQClient.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Threading;
+using Newtonsoft.Json;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
@@ -106,7 +107,7 @@ namespace FutureClient.ViewModel
                 _hqlist = HQDb.Queryable<FutureHQ>().Where(o => o.Updatetime >= DateTime.Today).ToList();
 
 
-                HqList = new ObservableCollection<FutureHQ>();
+                HqList = new ObservableCollection<FutureHQMvvM>();
                 FishList = new ObservableCollection<FishParas>();
                 //foreach (var c in codeList)
                 //{
@@ -123,9 +124,14 @@ namespace FutureClient.ViewModel
                     {
                         HqDict.Add(code, hq);
                     }
-                    
 
-                    HqList.Add(hq);
+                    //Object hqObj = hq;
+                    //FutureHQMvvM hqMvvM = (FutureHQMvvM)hqObj;
+
+                    
+                    //JsonConvert.DeserializeObject<FutureHQMvvM>(JsonConvert.SerializeObject(hq));
+
+                    HqList.Add(JsonConvert.DeserializeObject<FutureHQMvvM>(JsonConvert.SerializeObject(hq)));
 
 
 
@@ -160,11 +166,11 @@ namespace FutureClient.ViewModel
                 }
 
 
-                HqList.Add(new FutureHQ() { SCode = "T" });
-                HqList.Add(new FutureHQ() { SCode = "TF" });
-                HqList.Add(new FutureHQ() { SCode = "TS" });
+                HqList.Add(new FutureHQMvvM() { SCode = "T" });
+                HqList.Add(new FutureHQMvvM() { SCode = "TF" });
+                HqList.Add(new FutureHQMvvM() { SCode = "TS" });
 
-                HqList = new ObservableCollection<FutureHQ>(HqList.OrderBy(o => o.SCode));
+                HqList = new ObservableCollection<FutureHQMvvM>(HqList.OrderBy(o => o.SCode));
                 
                 HqDict.Add("T", new FutureHQ() { SCode = "T" });
                 HqDict.Add("TF", new FutureHQ() { SCode = "TF" });
@@ -532,24 +538,31 @@ namespace FutureClient.ViewModel
                              {
                                  HqDict.Add(code, hq);
                              }
-                            //HqList = new ObservableCollection<FutureHQ>(HqDict.Values.OrderBy(o => o.SCode));
+
+                             var h = HqList.Where(o => o.SCode == hq.SCode).FirstOrDefault();
+
+                             h.BuyPrice1 = hq.BuyPrice1;
+                             h.BuyVol1 = hq.BuyVol1;
+                             h.SelPrice1 = hq.SelPrice1;
+                             h.SelVol1 = hq.SelVol1;
 
 
-                            DispatcherHelper.CheckBeginInvokeOnUI(() => {
-                                var h = HqList.Where(o => o.SCode == hq.SCode).FirstOrDefault();
-                                int ind = HqList.IndexOf(h);
-                                if (ind > -1)
-                                {
-                                    HqList.RemoveAt(ind);
-                                    HqList.Insert(ind, hq);
-                                }
-                                
-                                //HqList.Remove(h);
-                                //HqList.Add(hq);
-                                //HqList.OrderBy(o => o.SCode);
-                             });
+                             //DispatcherHelper.CheckBeginInvokeOnUI(() => {
+                             //   var h = HqList.Where(o => o.SCode == hq.SCode).FirstOrDefault();
 
-                             
+                             //    int ind = HqList.IndexOf(h);
+                             //    if (ind > -1)
+                             //    {
+                             //        HqList.RemoveAt(ind);
+                             //        HqList.Insert(ind, hq);
+                             //    }
+
+                             //    //HqList.Remove(h);
+                             //    //HqList.Add(hq);
+                             //    //HqList.OrderBy(o => o.SCode);
+                             //});
+
+
                              //HqList.OrderBy(o => o.SCode);
                          }
                          if (ShowHQ != null && ShowHQ.SCode == hq.SCode)
@@ -566,6 +579,24 @@ namespace FutureClient.ViewModel
                  };
                 mq.OnPostion += (pos) =>
                 {
+                    //pos.ForEach(o =>
+                    //{ // ÐÞ¸Ä out_sell_fee Îª¾»³Ö²Ö
+                    //    List<FuturepositionQry_Output> tempPosList = pos.Where(l => l.out_stock_code == o.out_stock_code).ToList();
+                    //    int longPos = 0;
+                    //    int shortPos = 0;
+                    //    foreach(FuturepositionQry_Output tempPos in tempPosList)
+                    //    {
+                    //        if (tempPos.out_position_flag == "1")
+                    //        {
+                    //            longPos = int.Parse(tempPos.out_current_amount);
+                    //        }
+                    //        if (tempPos.out_position_flag == "2")
+                    //        {
+                    //            shortPos = int.Parse(tempPos.out_current_amount);
+                    //        }
+                    //    }
+                    //    o.out_sell_fee = (longPos - shortPos).ToString();
+                    //});
                     AccountIpList = new ObservableCollection<FuturepositionQry_Output>(pos);
                 };
             }
@@ -748,6 +779,11 @@ namespace FutureClient.ViewModel
                 {
                     try
                     {
+
+                        var SumList = SummaryDb.SqlQueryable<PosDetail>($"select queue_name,code,sum(deal_amount) as netPosition from SumposDetail where  queue_name like '%{clientName}'  group by queue_name,code").ToList();
+                        PosSumCollection = new ObservableCollection<PosDetail>(SumList);
+
+
                         var DirectionList = SummaryDb.Queryable<DirectionDetail>().Where(it => it.queue_name.Contains(clientName)).ToList();
                         DirectionSummaryCollection = new ObservableCollection<DirectionDetail>(DirectionList);
 
@@ -992,8 +1028,8 @@ namespace FutureClient.ViewModel
 
         public Dictionary<string, FutureHQ> HqDict {get;set; }
 
-        private ObservableCollection<FutureHQ> hqList;
-        public ObservableCollection<FutureHQ> HqList
+        private ObservableCollection<FutureHQMvvM> hqList;
+        public ObservableCollection<FutureHQMvvM> HqList
         {
             get { return hqList; }
             set { hqList = value; RaisePropertyChanged(); }
@@ -1100,6 +1136,13 @@ namespace FutureClient.ViewModel
             set { fishamount = value; RaisePropertyChanged(); }
         }
 
+
+        private ObservableCollection<PosDetail> posSumCollection;
+        public ObservableCollection<PosDetail> PosSumCollection
+        {
+            get { return posSumCollection; }
+            set { posSumCollection = value; RaisePropertyChanged(); }
+        }
 
 
         private ObservableCollection<DirectionDetail> directionSummaryCollection;
